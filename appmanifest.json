@@ -1,9 +1,9 @@
 ﻿{
-	"name": "aia-game-v4",
-	"short_name": "aia-game-v4",
+	"name": "aia-game-v7",
+	"short_name": "aia-game-v7",
 	"start_url": "index.html",
 	"display": "fullscreen",
-	"orientation": "landscape",
+	"orientation": "any",
 	"icons": [{
 		"src": "icon-16.png",
 		"sizes": "16x16",
