@@ -19475,285 +19475,6 @@ cr.plugins_.Browser = function(runtime)
 }());
 ;
 ;
-cr.plugins_.Button = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Button.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-		if (this.runtime.isDomFree)
-		{
-			cr.logexport("[Construct 2] Button plugin not supported on this platform - the object will not be created");
-			return;
-		}
-		this.isCheckbox = (this.properties[0] === 1);
-		this.inputElem = document.createElement("input");
-		if (this.isCheckbox)
-			this.elem = document.createElement("label");
-		else
-			this.elem = this.inputElem;
-		this.labelText = null;
-		this.inputElem.type = (this.isCheckbox ? "checkbox" : "button");
-		this.inputElem.id = this.properties[6];
-		jQuery(this.elem).appendTo(this.runtime.canvasdiv ? this.runtime.canvasdiv : "body");
-		if (this.isCheckbox)
-		{
-			jQuery(this.inputElem).appendTo(this.elem);
-			this.labelText = document.createTextNode(this.properties[1]);
-			jQuery(this.elem).append(this.labelText);
-			this.inputElem.checked = (this.properties[7] !== 0);
-			jQuery(this.elem).css("font-family", "sans-serif");
-			jQuery(this.elem).css("display", "inline-block");
-			jQuery(this.elem).css("color", "black");
-		}
-		else
-			this.inputElem.value = this.properties[1];
-		this.elem.title = this.properties[2];
-		this.inputElem.disabled = (this.properties[4] === 0);
-		this.autoFontSize = (this.properties[5] !== 0);
-		this.element_hidden = false;
-		if (this.properties[3] === 0)
-		{
-			jQuery(this.elem).hide();
-			this.visible = false;
-			this.element_hidden = true;
-		}
-		this.inputElem.onclick = (function (self) {
-			return function(e) {
-				e.stopPropagation();
-				self.runtime.isInUserInputEvent = true;
-				self.runtime.trigger(cr.plugins_.Button.prototype.cnds.OnClicked, self);
-				self.runtime.isInUserInputEvent = false;
-			};
-		})(this);
-		this.elem.addEventListener("touchstart", function (e) {
-			e.stopPropagation();
-		}, false);
-		this.elem.addEventListener("touchmove", function (e) {
-			e.stopPropagation();
-		}, false);
-		this.elem.addEventListener("touchend", function (e) {
-			e.stopPropagation();
-		}, false);
-		jQuery(this.elem).mousedown(function (e) {
-			e.stopPropagation();
-		});
-		jQuery(this.elem).mouseup(function (e) {
-			e.stopPropagation();
-		});
-		jQuery(this.elem).keydown(function (e) {
-			e.stopPropagation();
-		});
-		jQuery(this.elem).keyup(function (e) {
-			e.stopPropagation();
-		});
-		this.lastLeft = 0;
-		this.lastTop = 0;
-		this.lastRight = 0;
-		this.lastBottom = 0;
-		this.lastWinWidth = 0;
-		this.lastWinHeight = 0;
-		this.updatePosition(true);
-		this.runtime.tickMe(this);
-	};
-	instanceProto.saveToJSON = function ()
-	{
-		var o = {
-			"tooltip": this.elem.title,
-			"disabled": !!this.inputElem.disabled
-		};
-		if (this.isCheckbox)
-		{
-			o["checked"] = !!this.inputElem.checked;
-			o["text"] = this.labelText.nodeValue;
-		}
-		else
-		{
-			o["text"] = this.elem.value;
-		}
-		return o;
-	};
-	instanceProto.loadFromJSON = function (o)
-	{
-		this.elem.title = o["tooltip"];
-		this.inputElem.disabled = o["disabled"];
-		if (this.isCheckbox)
-		{
-			this.inputElem.checked = o["checked"];
-			this.labelText.nodeValue = o["text"];
-		}
-		else
-		{
-			this.elem.value = o["text"];
-		}
-	};
-	instanceProto.onDestroy = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		jQuery(this.elem).remove();
-		this.elem = null;
-	};
-	instanceProto.tick = function ()
-	{
-		this.updatePosition();
-	};
-	var last_canvas_offset = null;
-	var last_checked_tick = -1;
-	instanceProto.updatePosition = function (first)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var rightEdge = this.runtime.width / this.runtime.devicePixelRatio;
-		var bottomEdge = this.runtime.height / this.runtime.devicePixelRatio;
-		if (!this.visible || !this.layer.visible || right <= 0 || bottom <= 0 || left >= rightEdge || top >= bottomEdge)
-		{
-			if (!this.element_hidden)
-				jQuery(this.elem).hide();
-			this.element_hidden = true;
-			return;
-		}
-		if (left < 1)
-			left = 1;
-		if (top < 1)
-			top = 1;
-		if (right >= rightEdge)
-			right = rightEdge - 1;
-		if (bottom >= bottomEdge)
-			bottom = bottomEdge - 1;
-		var curWinWidth = window.innerWidth;
-		var curWinHeight = window.innerHeight;
-		if (!first && this.lastLeft === left && this.lastTop === top && this.lastRight === right && this.lastBottom === bottom && this.lastWinWidth === curWinWidth && this.lastWinHeight === curWinHeight)
-		{
-			if (this.element_hidden)
-			{
-				jQuery(this.elem).show();
-				this.element_hidden = false;
-			}
-			return;
-		}
-		this.lastLeft = left;
-		this.lastTop = top;
-		this.lastRight = right;
-		this.lastBottom = bottom;
-		this.lastWinWidth = curWinWidth;
-		this.lastWinHeight = curWinHeight;
-		if (this.element_hidden)
-		{
-			jQuery(this.elem).show();
-			this.element_hidden = false;
-		}
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		if (this.autoFontSize)
-			jQuery(this.elem).css("font-size", ((this.layer.getScale(true) / this.runtime.devicePixelRatio) - 0.2) + "em");
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function(glw)
-	{
-	};
-	function Cnds() {};
-	Cnds.prototype.OnClicked = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsChecked = function ()
-	{
-		return this.isCheckbox && this.inputElem.checked;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.SetText = function (text)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		if (this.isCheckbox)
-			this.labelText.nodeValue = text;
-		else
-			this.elem.value = text;
-	};
-	Acts.prototype.SetTooltip = function (text)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.title = text;
-	};
-	Acts.prototype.SetVisible = function (vis)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.visible = (vis !== 0);
-	};
-	Acts.prototype.SetEnabled = function (en)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.inputElem.disabled = (en === 0);
-	};
-	Acts.prototype.SetFocus = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.inputElem.focus();
-	};
-	Acts.prototype.SetBlur = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.inputElem.blur();
-	};
-	Acts.prototype.SetCSSStyle = function (p, v)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		jQuery(this.elem).css(p, v);
-	};
-	Acts.prototype.SetChecked = function (c)
-	{
-		if (this.runtime.isDomFree || !this.isCheckbox)
-			return;
-		this.inputElem.checked = (c === 1);
-	};
-	Acts.prototype.ToggleChecked = function ()
-	{
-		if (this.runtime.isDomFree || !this.isCheckbox)
-			return;
-		this.inputElem.checked = !this.inputElem.checked;
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	pluginProto.exps = new Exps();
-}());
-;
-;
 cr.plugins_.Dictionary = function(runtime)
 {
 	this.runtime = runtime;
@@ -26690,89 +26411,6 @@ cr.behaviors.scrollto = function(runtime)
 }());
 ;
 ;
-cr.behaviors.shadowcaster = function(runtime)
-{
-	this.runtime = runtime;
-	this.myTypes = [];
-};
-(function ()
-{
-	var behaviorProto = cr.behaviors.shadowcaster.prototype;
-	behaviorProto.Type = function(behavior, objtype)
-	{
-		this.behavior = behavior;
-		this.objtype = objtype;
-		this.runtime = behavior.runtime;
-		if (this.behavior.myTypes.indexOf(objtype) === -1)
-			this.behavior.myTypes.push(objtype);
-	};
-	var behtypeProto = behaviorProto.Type.prototype;
-	behtypeProto.onCreate = function()
-	{
-	};
-	behaviorProto.Instance = function(type, inst)
-	{
-		this.type = type;
-		this.behavior = type.behavior;
-		this.inst = inst;				// associated object instance to modify
-		this.runtime = type.runtime;
-	};
-	var behinstProto = behaviorProto.Instance.prototype;
-	behinstProto.onCreate = function()
-	{
-		this.inst.extra["shadowcasterEnabled"] = (this.properties[0] !== 0);
-		this.inst.extra["shadowcasterHeight"] = this.properties[1];
-		this.inst.extra["shadowcasterTag"] = this.properties[2];
-	};
-	behinstProto.tick = function ()
-	{
-	};
-	function Cnds() {};
-	Cnds.prototype.IsEnabled = function ()
-	{
-		return this.inst.extra["shadowcasterEnabled"];
-	};
-	Cnds.prototype.CompareHeight = function (cmp, x)
-	{
-		var h = this.inst.extra["shadowcasterHeight"];
-		return cr.do_cmp(h, cmp, x);
-	};
-	behaviorProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.SetEnabled = function (e)
-	{
-		this.inst.extra["shadowcasterEnabled"] = !!e;
-	};
-	Acts.prototype.SetHeight = function (h)
-	{
-		if (this.inst.extra["shadowcasterHeight"] !== h)
-		{
-			this.inst.extra["shadowcasterHeight"] = h;
-			this.runtime.redraw = true;
-		}
-	};
-	Acts.prototype.SetTag = function (tag)
-	{
-		if (this.inst.extra["shadowcasterTag"] !== tag)
-		{
-			this.inst.extra["shadowcasterTag"] = tag;
-			this.runtime.redraw = true;
-		}
-	};
-	behaviorProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.Height = function (ret)
-	{
-		ret.set_float(this.inst.extra["shadowcasterHeight"]);
-	};
-	Exps.prototype.Tag = function (ret)
-	{
-		ret.set_string(this.inst.extra["shadowcasterTag"]);
-	};
-	behaviorProto.exps = new Exps();
-}());
-;
-;
 cr.behaviors.solid = function(runtime)
 {
 	this.runtime = runtime;
@@ -26822,10 +26460,9 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.NinePatch,
 	cr.plugins_.Arr,
 	cr.plugins_.Audio,
-	cr.plugins_.Button,
 	cr.plugins_.Browser,
-	cr.plugins_.Function,
 	cr.plugins_.Dictionary,
+	cr.plugins_.Function,
 	cr.plugins_.JSON,
 	cr.plugins_.shadowlight,
 	cr.plugins_.Sprite,
@@ -26838,9 +26475,10 @@ cr.getObjectRefTable = function () { return [
 	cr.behaviors.Pin,
 	cr.behaviors.Fade,
 	cr.behaviors.Bullet,
-	cr.behaviors.shadowcaster,
 	cr.system_object.prototype.cnds.IsGroupActive,
 	cr.system_object.prototype.cnds.OnLayoutStart,
+	cr.plugins_.Text.prototype.acts.SetWebFont,
+	cr.plugins_.Text.prototype.acts.SetPos,
 	cr.plugins_.Text.prototype.acts.SetInstanceVar,
 	cr.system_object.prototype.acts.SetVar,
 	cr.plugins_.Text.prototype.acts.SetText,
@@ -26849,11 +26487,11 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Function.prototype.cnds.OnFunction,
 	cr.system_object.prototype.acts.SetGroupActive,
 	cr.plugins_.NinePatch.prototype.acts.SetPos,
+	cr.plugins_.Sprite.prototype.acts.SetAnimSpeed,
 	cr.plugins_.Function.prototype.acts.CallFunction,
 	cr.plugins_.TiledBg.prototype.acts.SetPos,
 	cr.plugins_.Function.prototype.exps.Param,
 	cr.system_object.prototype.exps.originalwindowwidth,
-	cr.plugins_.Text.prototype.acts.SetWebFont,
 	cr.plugins_.Sprite.prototype.acts.SetPos,
 	cr.plugins_.Sprite.prototype.acts.SetSize,
 	cr.plugins_.Sprite.prototype.exps.Width,
@@ -26863,12 +26501,15 @@ cr.getObjectRefTable = function () { return [
 	cr.behaviors.Platform.prototype.cnds.OnJump,
 	cr.plugins_.Sprite.prototype.acts.SetAnim,
 	cr.behaviors.Platform.prototype.cnds.OnLand,
-	cr.plugins_.Text.prototype.acts.SetPos,
+	cr.plugins_.Touch.prototype.cnds.OnTouchObject,
+	cr.behaviors.Fade.prototype.acts.StartFade,
 	cr.system_object.prototype.exps.originalwindowheight,
+	cr.system_object.prototype.acts.Wait,
+	cr.plugins_.Audio.prototype.acts.Play,
 	cr.system_object.prototype.cnds.Every,
 	cr.plugins_.Text.prototype.acts.SubInstanceVar,
 	cr.plugins_.Text.prototype.cnds.CompareInstanceVar,
-	cr.behaviors.Fade.prototype.acts.StartFade,
+	cr.plugins_.Sprite.prototype.acts.SetVisible,
 	cr.system_object.prototype.cnds.EveryTick,
 	cr.behaviors.Platform.prototype.acts.SimulateControl,
 	cr.plugins_.NinePatch.prototype.acts.SetWidth,
@@ -26881,7 +26522,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Sprite.prototype.acts.Destroy,
 	cr.system_object.prototype.acts.CreateObject,
 	cr.plugins_.Text.prototype.acts.MoveToTop,
-	cr.plugins_.Sprite.prototype.acts.SetVisible,
 	cr.behaviors.Platform.prototype.acts.SetGravity,
 	cr.system_object.prototype.acts.SubVar,
 	cr.system_object.prototype.cnds.CompareVar,
@@ -26898,9 +26538,9 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.NinePatch.prototype.acts.SubInstanceVar,
 	cr.plugins_.JSON.prototype.acts.LoadJSON,
 	cr.plugins_.NinePatch.prototype.cnds.CompareInstanceVar,
-	cr.plugins_.Touch.prototype.cnds.OnTouchObject,
-	cr.system_object.prototype.acts.Wait,
 	cr.behaviors.Fade.prototype.cnds.OnFadeInEnd,
+	cr.behaviors.Platform.prototype.acts.SetEnabled,
+	cr.plugins_.Sprite.prototype.acts.StartAnim,
 	cr.system_object.prototype.acts.RestartLayout,
 	cr.plugins_.Browser.prototype.acts.GoToURL,
 	cr.plugins_.Sprite.prototype.acts.SetOpacity
