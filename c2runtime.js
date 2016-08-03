@@ -26505,6 +26505,7 @@ cr.getObjectRefTable = function () { return [
 	cr.behaviors.Fade.prototype.acts.StartFade,
 	cr.system_object.prototype.exps.originalwindowheight,
 	cr.system_object.prototype.acts.Wait,
+	cr.plugins_.Text.prototype.acts.SetVisible,
 	cr.plugins_.Audio.prototype.acts.Play,
 	cr.system_object.prototype.cnds.Every,
 	cr.plugins_.Text.prototype.acts.SubInstanceVar,
