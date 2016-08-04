@@ -1,5 +1,5 @@
 ﻿CACHE MANIFEST
-#1470284014
+#1470285923
 data.js
 c2runtime.js
 jquery-2.1.1.min.js
@@ -60,6 +60,7 @@ media/power_reset.m4a
 media/power_reset.ogg
 media/win.m4a
 media/win.ogg
+media/jump.ogg
 icon-16.png
 icon-32.png
 icon-114.png
