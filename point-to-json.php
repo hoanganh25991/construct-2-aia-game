@@ -73,3 +73,8 @@ $b = str_replace("\"", "\"\"", $b);
 $b = "\"" . $b . "\"";
 echo $b;
 echo count($c);
+$total = 0;
+foreach ($a as $row) {
+	$total += $row["cap"] * $row["point"];
+}
+echo $total;
