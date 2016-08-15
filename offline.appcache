@@ -1,5 +1,5 @@
 ﻿CACHE MANIFEST
-#1470924275
+#1471253842
 data.js
 c2runtime.js
 jquery-2.1.1.min.js
@@ -49,9 +49,15 @@ images/taptoplay-sheet1.png
 images/taptoplay-sheet2.png
 images/taptoplay-sheet3.png
 images/taptoplay-sheet4.png
+images/taptoplay-sheet5.png
+images/taptoplay-sheet6.png
+images/taptoplay-sheet7.png
+images/taptoplay-sheet8.png
+images/taptoplay-sheet9.png
 images/timerspritefont.png
 images/countdownsprite-sheet0.png
 images/countdownsprite-sheet1.png
+images/loaderbackground.png
 media/count_down.m4a
 media/count_down.ogg
 media/eat_icon.m4a
